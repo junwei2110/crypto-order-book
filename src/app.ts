@@ -1,16 +1,23 @@
 import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import orderbookRouter from './routes/orderbook';
+import { createOrderBookWebSocket } from './webCall/orderbook';
+
+declare global {
+    interface global {
+        wsOrderBookDataObj: Record<string, number>
+    }
+}
+//Global WebSocket Data Obj
+global.wsOrderBookDataObj = {};
 
 const app = express();
 dotenv.config();
-const port = process.env.PORT || 8090; 
+const port = process.env.PORT || 8080; 
 
 
 app.use("/orderbook", orderbookRouter);
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    res.status(500).json({ message: err.message });
-});
+createOrderBookWebSocket();
 
 
 app.listen(port, () => {
